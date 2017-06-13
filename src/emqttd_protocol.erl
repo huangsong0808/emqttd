@@ -384,7 +384,10 @@ shutdown(conflict, #proto_state{client_id = _ClientId}) ->
 shutdown(Error, State = #proto_state{will_msg = WillMsg}) ->
     ?LOG(info, "Shutdown for ~p", [Error], State),
     Client = client(State),
-    send_willmsg(Client, WillMsg),
+    if 
+    	Error /= auth_failure  -> 
+		send_willmsg(Client, WillMsg)
+    end,
     emqttd_hooks:run('client.disconnected', [Error], Client),
     %% let it down
     %% emqttd_cm:unreg(ClientId).
